@@ -74,8 +74,8 @@ export default function EntryForm({ entry, onSubmit }) {
               <textarea
                 required
                 className="input-b-color text-padding input-b-radius purple-outline d-block width-100"
-                cols="30"
-                rows="10"
+                cols={30}
+                rows={10}
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
               />

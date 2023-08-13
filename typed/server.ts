@@ -1,4 +1,4 @@
-/* eslint-disable no-unused-vars -- Remove me */
+/* eslint-disable @typescript-eslint/no-unused-vars -- Remove me */
 import 'dotenv/config';
 import pg from 'pg';
 import express from 'express';

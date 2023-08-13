@@ -3,7 +3,12 @@
 }
 
 .form-image {
-  width: 100%;
+  max-height: 12rem;
+  margin-bottom: 1rem;
+  aspect-ratio: auto;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
 }
 
 .input-height {

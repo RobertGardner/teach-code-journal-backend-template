@@ -1,3 +1,4 @@
+import { FaPencilAlt } from 'react-icons/fa';
 import { readEntries } from './data';
 
 export default function EntryList({ onCreate, onEdit }) {
@@ -21,7 +22,7 @@ export default function EntryList({ onCreate, onEdit }) {
         <div className="column-full">
           <ul className="entry-ul">
             {entries.map((entry) => (
-              <Entry key={entry.entryId} entry={entry} onEdit={onEdit} />
+              <EntryCard key={entry.entryId} entry={entry} onEdit={onEdit} />
             ))}
           </ul>
         </div>
@@ -30,7 +31,7 @@ export default function EntryList({ onCreate, onEdit }) {
   );
 }
 
-function Entry({ entry, onEdit }) {
+function EntryCard({ entry, onEdit }) {
   return (
     <li>
       <div className="row">
@@ -45,9 +46,9 @@ function Entry({ entry, onEdit }) {
           <div className="row">
             <div className="column-full d-flex justify-between">
               <h3>{entry.title}</h3>
-              <i
-                className="fa-solid fa-pencil"
-                onClick={() => onEdit(entry)}></i>
+              <button onClick={() => onEdit(entry)}>
+                <FaPencilAlt />
+              </button>
             </div>
           </div>
           <p>{entry.notes}</p>

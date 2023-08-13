@@ -1,5 +1,14 @@
+export type UnsavedEntry = {
+  title: string;
+  notes: string;
+  photoUrl: string;
+};
+export type Entry = UnsavedEntry & {
+  entryId: number;
+};
+
 let data = {
-  entries: [],
+  entries: [] as Entry[],
   nextEntryId: 1,
 };
 
@@ -13,11 +22,11 @@ if (localData) {
   data = JSON.parse(localData);
 }
 
-export function readEntries() {
+export function readEntries(): Entry[] {
   return data.entries;
 }
 
-export function addEntry(entry) {
+export function addEntry(entry: UnsavedEntry): Entry {
   const newEntry = {
     ...entry,
     entryId: data.nextEntryId++,
@@ -26,7 +35,7 @@ export function addEntry(entry) {
   return newEntry;
 }
 
-export function updateEntry(entry) {
+export function updateEntry(entry: Entry): Entry {
   const newEntries = data.entries.map((e) =>
     e.entryId === entry.entryId ? entry : e
   );
@@ -34,7 +43,7 @@ export function updateEntry(entry) {
   return entry;
 }
 
-export function removeEntry(entryId) {
+export function removeEntry(entryId: number): void {
   const updatedArray = data.entries.filter(
     (entry) => entry.entryId !== entryId
   );

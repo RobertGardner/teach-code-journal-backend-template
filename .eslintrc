@@ -8,9 +8,10 @@
     "ecmaVersion": 2023
   },
   "extends": [
+    "eslint:recommended",
     "plugin:react/recommended",
     "plugin:react-hooks/recommended",
-    "eslint:recommended",
+    "plugin:react/jsx-runtime",
     "standard",
     "prettier"
   ],
@@ -31,45 +32,21 @@
   },
   "overrides": [
     {
-      "files": [
-        "*.test.js"
+      "files": ["*.ts", "*.tsx"],
+      "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
+        "prettier"
       ],
-      "env": {
-        "mocha": true
-      }
-    },
-    {
-      "files": [
-        "**/*.jsx"
-      ],
+      "parser": "@typescript-eslint/parser",
+      "plugins": ["@typescript-eslint"],
       "rules": {
-        "react/prop-types": "off",
-        "react/jsx-curly-brace-presence": [
-          "error",
-          "never"
-        ],
-        "react/self-closing-comp": [
-          "error",
-          {
-            "html": false,
-            "component": true
-          }
-        ],
-        "react/style-prop-object": [
-          "error"
-        ],
-        "react/no-this-in-sfc": [
-          "error"
-        ]
+        "@typescript-eslint/no-explicit-any": "off"
       }
     },
     {
-      "files": [
-        "**/*.html"
-      ],
-      "plugins": [
-        "eslint-plugin-html"
-      ]
+      "files": ["**/*.html"],
+      "plugins": ["eslint-plugin-html"]
     }
   ]
 }
