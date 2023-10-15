@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { FaPencilAlt } from 'react-icons/fa';
 import { readEntries } from './data';
 
