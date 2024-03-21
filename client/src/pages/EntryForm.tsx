@@ -1,43 +1,79 @@
-import { FormEvent, useState } from 'react';
-import { Entry, addEntry, removeEntry, updateEntry } from './data';
+import { FormEvent, useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import {
+  type Entry,
+  addEntry,
+  readEntry,
+  removeEntry,
+  updateEntry,
+} from '../data';
 
 /**
  * Form that adds or edits an entry.
- * If `entry` is `null`, adds an entry.
- * If `entry` is defined, edits that entry.
+ * Gets `entryId` from route.
+ * If `entryId` === 'new' then creates a new entry.
+ * Otherwise reads the entry and edits it.
  */
-type Props = {
-  entry: Entry | null;
-  onSubmit: () => void;
-};
-export default function EntryForm({ entry, onSubmit }: Props) {
-  const [title, setTitle] = useState(entry?.title ?? '');
-  const [photoUrl, setPhotoUrl] = useState(entry?.photoUrl ?? '');
-  const [notes, setNotes] = useState(entry?.notes ?? '');
+export function EntryForm() {
+  const { entryId } = useParams();
+  const [entry, setEntry] = useState<Entry>();
+  const [photoUrl, setPhotoUrl] = useState<string>();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<unknown>();
   const [isDeleting, setIsDeleting] = useState(false);
+  const navigate = useNavigate();
+  const isEditing = entryId && entryId !== 'new';
 
-  function handleSubmit(event: FormEvent) {
+  useEffect(() => {
+    async function load(id: number) {
+      setIsLoading(true);
+      try {
+        const entry = await readEntry(id);
+        if (!entry) throw new Error(`Entry with ID ${id} not found`);
+        setEntry(entry);
+        setPhotoUrl(entry.photoUrl);
+      } catch (err) {
+        setError(err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    if (isEditing) load(+entryId);
+  }, [entryId]);
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const newEntry = { title, photoUrl, notes };
-    if (entry) {
+    const formData = new FormData(event.currentTarget);
+    const newEntry = Object.fromEntries(formData) as unknown as Entry;
+    if (isEditing) {
       updateEntry({ ...entry, ...newEntry });
     } else {
       addEntry(newEntry);
     }
-    onSubmit();
+    navigate('/');
   }
 
   function handleDelete() {
-    if (!entry) throw new Error('Should never happen');
+    if (!entry?.entryId) throw new Error('Should never happen');
     removeEntry(entry.entryId);
-    onSubmit();
+    navigate('/');
+  }
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) {
+    return (
+      <div>
+        Error Loading Entry with ID {entryId}:{' '}
+        {error instanceof Error ? error.message : 'Unknown Error'}
+      </div>
+    );
   }
 
   return (
     <div className="container">
       <div className="row">
         <div className="column-full d-flex justify-between">
-          <h1>{entry ? 'Edit Entry' : 'New Entry'}</h1>
+          <h1>{isEditing ? 'Edit Entry' : 'New Entry'}</h1>
         </div>
       </div>
       <form onSubmit={handleSubmit}>
@@ -45,7 +81,7 @@ export default function EntryForm({ entry, onSubmit }: Props) {
           <div className="column-half">
             <img
               className="input-b-radius form-image"
-              src={photoUrl || 'images/placeholder-image-square.jpg'}
+              src={photoUrl || '/images/placeholder-image-square.jpg'}
               alt="entry"
             />
           </div>
@@ -53,20 +89,21 @@ export default function EntryForm({ entry, onSubmit }: Props) {
             <label className="margin-bottom-1 d-block">
               Title
               <input
+                name="title"
+                defaultValue={entry?.title ?? ''}
                 required
                 className="input-b-color text-padding input-b-radius purple-outline input-height margin-bottom-2 d-block width-100"
                 type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
               />
             </label>
             <label className="margin-bottom-1 d-block">
               Photo URL
               <input
+                name="photoUrl"
+                defaultValue={entry?.photoUrl ?? ''}
                 required
                 className="input-b-color text-padding input-b-radius purple-outline input-height margin-bottom-2 d-block width-100"
                 type="text"
-                value={photoUrl}
                 onChange={(e) => setPhotoUrl(e.target.value)}
               />
             </label>
@@ -77,19 +114,19 @@ export default function EntryForm({ entry, onSubmit }: Props) {
             <label className="margin-bottom-1 d-block">
               Notes
               <textarea
+                name="notes"
+                defaultValue={entry?.notes ?? ''}
                 required
                 className="input-b-color text-padding input-b-radius purple-outline d-block width-100"
                 cols={30}
                 rows={10}
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
               />
             </label>
           </div>
         </div>
         <div className="row">
           <div className="column-full d-flex justify-between">
-            {entry && (
+            {isEditing && (
               <button
                 className="delete-entry-button"
                 type="button"

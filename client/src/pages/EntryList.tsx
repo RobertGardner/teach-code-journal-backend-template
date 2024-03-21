@@ -1,24 +1,46 @@
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { FaPencilAlt } from 'react-icons/fa';
-import { Entry, readEntries } from './data';
+import { Entry, readEntries } from '../data';
 
-type Props = {
-  onCreate: () => void;
-  onEdit: (entry: Entry) => void;
-};
-export default function EntryList({ onCreate, onEdit }: Props) {
-  const entries = readEntries();
+export function EntryList() {
+  const [entries, setEntries] = useState<Entry[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<unknown>();
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const entries = await readEntries();
+        setEntries(entries);
+      } catch (err) {
+        setError(err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    load();
+  }, []);
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) {
+    return (
+      <div>
+        Error Loading Entries:{' '}
+        {error instanceof Error ? error.message : 'Unknown Error'}
+      </div>
+    );
+  }
+
   return (
     <div className="container">
       <div className="row">
         <div className="column-full d-flex justify-between align-center">
           <h1>Entries</h1>
           <h3>
-            <button
-              type="button"
-              className="white-text form-link"
-              onClick={onCreate}>
+            <Link to="/details/new" className="white-text form-link">
               NEW
-            </button>
+            </Link>
           </h3>
         </div>
       </div>
@@ -26,7 +48,7 @@ export default function EntryList({ onCreate, onEdit }: Props) {
         <div className="column-full">
           <ul className="entry-ul">
             {entries.map((entry) => (
-              <EntryCard key={entry.entryId} entry={entry} onEdit={onEdit} />
+              <EntryCard key={entry.entryId} entry={entry} />
             ))}
           </ul>
         </div>
@@ -37,9 +59,8 @@ export default function EntryList({ onCreate, onEdit }: Props) {
 
 type EntryProps = {
   entry: Entry;
-  onEdit: (entry: Entry) => void;
 };
-function EntryCard({ entry, onEdit }: EntryProps) {
+function EntryCard({ entry }: EntryProps) {
   return (
     <li>
       <div className="row">
@@ -54,9 +75,9 @@ function EntryCard({ entry, onEdit }: EntryProps) {
           <div className="row">
             <div className="column-full d-flex justify-between">
               <h3>{entry.title}</h3>
-              <button onClick={() => onEdit(entry)}>
+              <Link to={`details/${entry.entryId}`}>
                 <FaPencilAlt />
-              </button>
+              </Link>
             </div>
           </div>
           <p>{entry.notes}</p>

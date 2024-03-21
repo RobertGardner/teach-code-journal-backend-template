@@ -1,30 +1,18 @@
-import { useState } from 'react';
-import EntryForm from './EntryForm';
-import EntryList from './EntryList';
-import { NavBar } from './NavBar';
-import { Entry } from './data';
+import { Route, Routes } from 'react-router-dom';
+import { NavBar } from './components/NavBar';
+import { EntryForm } from './pages/EntryForm';
+import { EntryList } from './pages/EntryList';
+import { NotFound } from './pages/NotFound';
 import './App.css';
 
 export default function App() {
-  /* What is being currently edited:
-   * undefined - nothing, display entries
-   * null - creating a new entry
-   * defined - the entry being edited
-   */
-  const [editing, setEditing] = useState<Entry | null | undefined>();
-
   return (
-    <>
-      <NavBar onEntries={() => setEditing(undefined)} />
-      {editing !== undefined && (
-        <EntryForm entry={editing} onSubmit={() => setEditing(undefined)} />
-      )}
-      {editing === undefined && (
-        <EntryList
-          onCreate={() => setEditing(null)}
-          onEdit={(entry) => setEditing(entry)}
-        />
-      )}
-    </>
+    <Routes>
+      <Route path="/" element={<NavBar />}>
+        <Route index element={<EntryList />} />
+        <Route path="details/:entryId" element={<EntryForm />} />
+        <Route path="*" element={<NotFound />} />
+      </Route>
+    </Routes>
   );
 }

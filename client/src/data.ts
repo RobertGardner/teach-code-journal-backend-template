@@ -1,51 +1,70 @@
-export type UnsavedEntry = {
+export type Entry = {
+  entryId?: number;
   title: string;
   notes: string;
   photoUrl: string;
 };
-export type Entry = UnsavedEntry & {
-  entryId: number;
+
+type Data = {
+  entries: Entry[];
+  nextEntryId: number;
 };
 
-let data = {
-  entries: [] as Entry[],
-  nextEntryId: 1,
-};
+const dataKey = 'code-journal-data';
 
-window.addEventListener('beforeunload', function () {
+function readData(): Data {
+  let data: Data;
+  const localData = localStorage.getItem(dataKey);
+  if (localData) {
+    data = JSON.parse(localData);
+  } else {
+    data = {
+      entries: [],
+      nextEntryId: 1,
+    };
+  }
+  return data;
+}
+
+function writeData(data: Data): void {
   const dataJSON = JSON.stringify(data);
-  localStorage.setItem('code-journal-data', dataJSON);
-});
-
-const localData = localStorage.getItem('code-journal-data');
-if (localData) {
-  data = JSON.parse(localData);
+  localStorage.setItem(dataKey, dataJSON);
 }
 
-export function readEntries(): Entry[] {
-  return data.entries;
+export async function readEntries(): Promise<Entry[]> {
+  return readData().entries;
 }
 
-export function addEntry(entry: UnsavedEntry): Entry {
+export async function readEntry(entryId: number): Promise<Entry | undefined> {
+  return readData().entries.find((e) => e.entryId === entryId);
+}
+
+export async function addEntry(entry: Entry): Promise<Entry> {
+  const data = readData();
   const newEntry = {
     ...entry,
     entryId: data.nextEntryId++,
   };
   data.entries.unshift(newEntry);
+  writeData(data);
   return newEntry;
 }
 
-export function updateEntry(entry: Entry): Entry {
+export async function updateEntry(entry: Entry): Promise<Entry> {
+  const data = readData();
   const newEntries = data.entries.map((e) =>
     e.entryId === entry.entryId ? entry : e
   );
   data.entries = newEntries;
+  writeData(data);
   return entry;
 }
 
-export function removeEntry(entryId: number): void {
+export async function removeEntry(entryId: number): Promise<void> {
+  const data = readData();
   const updatedArray = data.entries.filter(
     (entry) => entry.entryId !== entryId
   );
   data.entries = updatedArray;
+  writeData(data);
 }
