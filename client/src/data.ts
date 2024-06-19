@@ -16,7 +16,7 @@ function readData(): Data {
   let data: Data;
   const localData = localStorage.getItem(dataKey);
   if (localData) {
-    data = JSON.parse(localData);
+    data = JSON.parse(localData) as Data;
   } else {
     data = {
       entries: [],
