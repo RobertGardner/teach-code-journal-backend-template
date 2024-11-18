@@ -15,10 +15,14 @@
     "lint:server": "npm run lint --prefix server",
     "lint": "npm-run-all --parallel lint:*",
     "postinstall": "npm-run-all --parallel install:*",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "tsc:client": "tsc --project client",
+    "tsc:server": "tsc --project server",
+    "tsc": "npm-run-all --continue-on-error tsc:*"
   },
   "devDependencies": {
     "@learningfuze/lfz-config": "^1.0.6",
+    "@types/jsonwebtoken": "^9.0.7",
     "@typescript-eslint/eslint-plugin": "^7.3.1",
     "@typescript-eslint/parser": "^7.3.1",
     "eslint": "^8.38.0",
