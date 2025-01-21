@@ -39,24 +39,34 @@ export function EntryForm() {
       }
     }
     if (isEditing) load(+entryId);
-  }, [entryId]);
+  }, [entryId, isEditing]);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const newEntry = Object.fromEntries(formData) as unknown as Entry;
-    if (isEditing) {
-      updateEntry({ ...entry, ...newEntry });
-    } else {
-      addEntry(newEntry);
+    try {
+      const formData = new FormData(event.currentTarget);
+      const newEntry = Object.fromEntries(formData) as unknown as Entry;
+      if (isEditing) {
+        updateEntry({ ...entry, ...newEntry });
+      } else {
+        addEntry(newEntry);
+      }
+      navigate('/');
+    } catch (err) {
+      console.error(err);
+      alert(`Error adding or updating entry: ` + String(err));
     }
-    navigate('/');
   }
 
   function handleDelete() {
     if (!entry?.entryId) throw new Error('Should never happen');
-    removeEntry(entry.entryId);
-    navigate('/');
+    try {
+      removeEntry(entry.entryId);
+      navigate('/');
+    } catch (err) {
+      console.error(err);
+      alert(`Error deleting entry: ` + String(err));
+    }
   }
 
   if (isLoading) return <div>Loading...</div>;
